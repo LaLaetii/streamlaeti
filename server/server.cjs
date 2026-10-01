@@ -6,7 +6,7 @@ const session = require("express-session");
 dotenv.config();
 
 const app = express();
-const PORT = 3000;
+const PORT = process.env.PORT || 3000;
 
 let serverQueue = [];
 let nextRotationAt = Date.now() + 20 * 60 * 1000;
