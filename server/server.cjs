@@ -1,4 +1,5 @@
 const express = require("express");
+const path = require("path");
 const cors = require("cors");
 const dotenv = require("dotenv");
 const crypto = require("crypto");
@@ -305,6 +306,12 @@ app.get("/api/queue-status", (req, res) => {
     remaining,
   });
 });
+app.use(express.static(path.join(__dirname, "..", "dist")));
+
+app.get(/.*/, (req, res) => {
+  res.sendFile(path.join(__dirname, "..", "dist", "index.html"));
+});
+
 app.listen(PORT, () => {
   console.log(`🚀 Serveur StreamLaeti lancé sur http://localhost:${PORT}`);
 });
