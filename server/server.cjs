@@ -80,9 +80,7 @@ app.delete("/api/queue/:id", (req, res) => {
   });
 });
 
-app.get("/", (req, res) => {
-  res.send("🚀 Serveur StreamLaeti OK !");
-});
+
 
 // Début de la connexion Twitch
 app.get("/auth/twitch", (req, res) => {
