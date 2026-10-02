@@ -67,28 +67,7 @@ useEffect(() => {
         data.streams.map((stream) => stream.user_id)
       );
 
-      const offlineStreamers = queue.filter(
-        (streamer) =>
-          streamer.id && !liveIds.has(streamer.id)
-      );
-
-      for (const streamer of offlineStreamers) {
-        await fetch(`${API_URL}/api/queue/${streamer.id}`, {
-          method: "DELETE",
-          credentials: "include",
-        });
-      }
-
-      if (offlineStreamers.length > 0) {
-        setQueue((currentQueue) =>
-          currentQueue.filter(
-            (streamer) =>
-              !offlineStreamers.some(
-                (offline) => offline.id === streamer.id
-              )
-          )
-        );
-      }
+      
     } catch (error) {
       console.error(
         "Erreur vérification des streamers :",
