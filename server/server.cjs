@@ -27,7 +27,7 @@ setInterval(() => {
 
 app.use(
   cors({
-    origin: "http://localhost:5173",
+    origin: "https://streamlaeti.onrender.com",
     credentials: true,
   })
 );
@@ -160,7 +160,7 @@ app.get("/auth/twitch/callback", async (req, res) => {
     req.session.user = user;
     req.session.accessToken = tokenData.access_token;
 
-    res.redirect("http://localhost:5173");
+    res.redirect("https://streamlaeti.onrender.com");
   } catch (error) {
     console.error(error);
     res.status(500).send("❌ Une erreur est survenue.");

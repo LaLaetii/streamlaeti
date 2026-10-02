@@ -1,6 +1,6 @@
 import { useEffect, useState } from "react";
 
-const API_URL = "http://localhost:3000";
+const API_URL = "https://streamlaeti.onrender.com";
 
 const streamers = [
   
@@ -224,7 +224,7 @@ setQueue(queueData.queue);
         <button
   style={styles.loginButton}
   onClick={() => {
-    window.location.href = "http://localhost:3000/auth/twitch";
+    window.location.href = "https://streamlaeti.onrender.com/auth/twitch";
   }}
 >
           {twitchUser
