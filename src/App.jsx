@@ -18,18 +18,30 @@ function App() {
   const [liveStatus, setLiveStatus] = useState(null);
 
 useEffect(() => {
-  fetch(`${API_URL}/auth/me`, {
-    credentials: "include",
-  })
-    .then((response) => response.json())
-    .then((data) => {
-      if (data.connected) {
-        setTwitchUser(data.user);
-      }
-    })
-    .catch((error) => {
-      console.error("Erreur connexion Twitch :", error);
-    });
+    const checkTwitchConnection = async () => {
+        try {
+            const response = await fetch(`${API_URL}/auth/me`, {
+                credentials: "include",
+                cache: "no-store",
+            });
+
+            const data = await response.json();
+
+            if (data.connected) {
+                setTwitchUser(data.user);
+            }
+        } catch (error) {
+            console.error("Erreur connexion Twitch :", error);
+        }
+    };
+
+    checkTwitchConnection();
+
+    const retry = setTimeout(() => {
+        checkTwitchConnection();
+    }, 1000);
+
+    return () => clearTimeout(retry);
 }, []);
 useEffect(() => {
   fetch(`${API_URL}/api/queue`, {
