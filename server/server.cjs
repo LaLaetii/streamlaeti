@@ -9,25 +9,50 @@ dotenv.config();
 const app = express();
 const PORT = process.env.PORT || 3000;
 
-let serverQueue = [];
-let nextRotationAt = Date.now() + 20 * 60 * 1000;
+let serverQueue = [
+  { id: "juliegaming", name: "JulieGaming", game: "Valorant", viewers: 2 },
+  { id: "darkneko", name: "DarkNeko", game: "Apex Legends", viewers: 6 },
+  { id: "mikaplay", name: "MikaPlay", game: "Call of Duty", viewers: 3 },
+  { id: "lunagame", name: "LunaGame", game: "Fortnite", viewers: 5 }
+];
+let nextRotationAt = null;
+let rotationTimer = null;
 
 app.use(express.json());
 
-setInterval(() => {
-  if (serverQueue.length > 1) {
-    serverQueue.push(serverQueue.shift());
+function startRotationTimer() {
+    if (rotationTimer) {
+        clearTimeout(rotationTimer);
+    }
 
     nextRotationAt = Date.now() + 20 * 60 * 1000;
 
-    console.log("🔄 Rotation de la file :", serverQueue[0]?.name);
-  }
-}, 20 * 60 * 1000);
+    rotationTimer = setTimeout(() => {
+        if (serverQueue.length > 1) {
+            serverQueue.push(serverQueue.shift());
 
+            console.log(
+                "🔄 Rotation immédiate de la file :",
+                serverQueue[0]?.name
+            );
+
+            startRotationTimer();
+        } else {
+            rotationTimer = null;
+            nextRotationAt = null;
+        }
+    }, 20 * 60 * 1000);
+}
+
+startRotationTimer();
 
 app.use(
   cors({
-    origin: "https://streamlaeti.onrender.com",
+    origin: [
+  "https://streamlaeti.onrender.com",
+  "http://localhost:5173",
+  "http://localhost:5174"
+],
     credentials: true,
   })
 );
@@ -62,6 +87,10 @@ app.post("/api/queue", (req, res) => {
   }
 
   serverQueue.push(streamer);
+
+  if (serverQueue.length === 1) {
+    startRotationTimer();
+}
 
   res.json({
     success: true,
@@ -294,10 +323,9 @@ app.get("/api/streams", async (req, res) => {
   }
 });
 app.get("/api/queue-status", (req, res) => {
-  const remaining = Math.max(
-    0,
-    Math.ceil((nextRotationAt - Date.now()) / 1000)
-  );
+  const remaining = nextRotationAt
+    ? Math.max(0, Math.ceil((nextRotationAt - Date.now()) / 1000))
+    : 0;
 
   res.json({
     queue: serverQueue,

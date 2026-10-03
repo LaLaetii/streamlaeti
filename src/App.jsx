@@ -97,8 +97,9 @@ useEffect(() => {
   const syncQueueStatus = async () => {
     try {
       const response = await fetch(`${API_URL}/api/queue-status`, {
-        credentials: "include",
-      });
+    credentials: "include",
+    cache: "no-store",
+});
 
       const data = await response.json();
 
