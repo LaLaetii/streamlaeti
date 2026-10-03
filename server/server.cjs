@@ -189,7 +189,14 @@ app.get("/auth/twitch/callback", async (req, res) => {
     req.session.user = user;
     req.session.accessToken = tokenData.access_token;
 
+    req.session.save((err) => {
+    if (err) {
+        console.error("Erreur sauvegarde session :", err);
+        return res.status(500).send("Erreur de session.");
+    }
+
     res.redirect("https://streamlaeti.onrender.com");
+});
   } catch (error) {
     console.error(error);
     res.status(500).send("❌ Une erreur est survenue.");
