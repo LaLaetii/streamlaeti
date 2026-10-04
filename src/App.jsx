@@ -17,6 +17,35 @@ function App() {
   const [twitchUser, setTwitchUser] = useState(null);
   const [liveStatus, setLiveStatus] = useState(null);
 const [likes, setLikes] = useState({});
+const [likeMessages, setLikeMessages] = useState([]);
+
+const sendLike = async () => {
+  const streamer = queue[0]?.name;
+  if (!streamer) return;
+
+  const newCount = (likes[streamer] || 0) + 1;
+
+  setLikes((currentLikes) => ({
+    ...currentLikes,
+    [streamer]: newCount,
+  }));
+
+  try {
+    await fetch(`${API_URL}/api/likes`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        streamer,
+        count: newCount,
+      }),
+    });
+  } catch (error) {
+    console.error("Erreur envoi du cœur :", error);
+  }
+};
 
 useEffect(() => {
     const checkTwitchConnection = async () => {
@@ -125,11 +154,39 @@ useEffect(() => {
     }
   };
 
+const loadLikeMessages = async () => {
+  try {
+    const streamer = queue[0]?.name;
+    if (!streamer) return;
+
+    const response = await fetch(
+      `${API_URL}/api/likes?streamer=${encodeURIComponent(streamer)}`,
+      {
+        credentials: "include",
+        cache: "no-store",
+      }
+    );
+
+    const data = await response.json();
+
+    if (response.ok) {
+      setLikeMessages(data.messages || []);
+    }
+  } catch (error) {
+    console.error("Erreur récupération des cœurs :", error);
+  }
+};
+
   syncQueueStatus();
 
   const interval = setInterval(syncQueueStatus, 1000);
+loadLikeMessages();
+const likeInterval = setInterval(loadLikeMessages, 1000);
 
-  return () => clearInterval(interval);
+  return () => {
+  clearInterval(interval);
+  clearInterval(likeInterval);
+};
 }, []);
 
   const minutes = String(Math.floor(timeLeft / 60)).padStart(2, "0");
@@ -322,15 +379,34 @@ setQueue(queueData.queue);
 </button>
 
 <button
-  onClick={() =>
-    setLikes((currentLikes) => ({
-      ...currentLikes,
-      [queue[0].name]: (currentLikes[queue[0].name] || 0) + 1,
-    }))
-  }
+  onClick={sendLike}
 >
   ❤️ {likes[queue[0].name] || 0}
 </button>
+
+<div
+  style={{
+    marginTop: "15px",
+    padding: "10px",
+    border: "1px solid #444",
+    borderRadius: "10px",
+    maxHeight: "180px",
+    overflowY: "auto",
+  }}
+>
+  <strong>💬 Activité</strong>
+
+  {likeMessages.length === 0 ? (
+    <div>Aucun cœur pour le moment ❤️</div>
+  ) : (
+    likeMessages.map((message) => (
+      <div key={message.id}>
+        ❤️ {message.username} a mis {message.count} cœur
+        {message.count > 1 ? "s" : ""}
+      </div>
+    ))
+  )}
+</div>
 
             </div>
 
