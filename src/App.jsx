@@ -16,6 +16,7 @@ function App() {
 
   const [twitchUser, setTwitchUser] = useState(null);
   const [liveStatus, setLiveStatus] = useState(null);
+const [likes, setLikes] = useState({});
 
 useEffect(() => {
     const checkTwitchConnection = async () => {
@@ -319,6 +320,18 @@ setQueue(queueData.queue);
 >
   💜 Regarder sur Twitch
 </button>
+
+<button
+  onClick={() =>
+    setLikes((currentLikes) => ({
+      ...currentLikes,
+      [queue[0].name]: (currentLikes[queue[0].name] || 0) + 1,
+    }))
+  }
+>
+  ❤️ {likes[queue[0].name] || 0}
+</button>
+
             </div>
 
             <div style={styles.queueList}>
