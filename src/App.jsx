@@ -280,6 +280,39 @@ setQueue(queueData.queue);
                 </div>
               </div>
 
+                      {queue[0]?.name && (
+            <div style={{
+                marginTop: "20px",
+                background: "#0b0715",
+                borderRadius: "16px",
+                overflow: "hidden",
+                border: "1px solid rgba(145,70,255,0.35)",
+                boxShadow: "0 10px 30px rgba(0,0,0,0.35)"
+            }}>
+                <div style={{
+                    padding: "12px 16px",
+                    fontWeight: "700",
+                    color: "#ffffff"
+                }}>
+                    🔴 LIVE DE {queue[0].name}
+                </div>
+
+                <iframe
+                    src={`https://player.twitch.tv/?channel=${encodeURIComponent(
+                        queue[0].name
+                    )}&parent=${window.location.hostname}&autoplay=false`}
+                    height="480"
+                    width="100%"
+                    allowFullScreen
+                    style={{
+                        display: "block",
+                        border: "none"
+                    }}
+                    title={`Live Twitch de ${queue[0].name}`}
+                />
+            </div>
+        )}
+
               <button
   style={styles.watchButton}
   onClick={() => window.open(`https://www.twitch.tv/${queue[0]?.name}`, "_blank")}
