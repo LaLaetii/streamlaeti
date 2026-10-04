@@ -121,7 +121,7 @@ app.get("/auth/twitch", (req, res) => {
     client_id: process.env.TWITCH_CLIENT_ID,
     redirect_uri: process.env.TWITCH_REDIRECT_URI,
     response_type: "code",
-    scope: "user:read:email",
+    scope: "user:read:email user:write:chat",
     state,
   });
 
@@ -338,6 +338,39 @@ app.get("/api/queue-status", (req, res) => {
     queue: serverQueue,
     remaining,
   });
+});
+let likeMessages = [];
+
+app.post("/api/likes", (req, res) => {
+  const { streamer, count } = req.body;
+
+  if (!streamer) {
+    return res.status(400).json({ error: "Streamer manquant" });
+  }
+
+  const username = req.session.user?.display_name || "Un visiteur";
+  const heartCount = Number(count) || 1;
+
+  likeMessages.unshift({
+    id: Date.now() + Math.random(),
+    username,
+    streamer,
+    count: heartCount,
+  });
+
+  likeMessages = likeMessages.slice(0, 30);
+
+  res.json({ success: true });
+});
+
+app.get("/api/likes", (req, res) => {
+  const streamer = req.query.streamer;
+
+  const messages = streamer
+    ? likeMessages.filter((message) => message.streamer === streamer)
+    : likeMessages;
+
+  res.json({ messages });
 });
 app.use(express.static(path.join(__dirname, "..", "dist")));
 
