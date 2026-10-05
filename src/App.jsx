@@ -606,6 +606,34 @@ setQueue(queueData.queue);
               </div>
             </div>
 
+            <div style={styles.sideCard}>
+  <h2>📊 StreamLaeti aujourd'hui</h2>
+
+  <div style={styles.rule}>
+    <b>🔴</b>
+    <span>Streamers en direct : {queue.filter((streamer) => streamer.id).length}</span>
+  </div>
+
+  <div style={styles.rule}>
+    <b>👀</b>
+    <span>Streamers dans la file : {queue.length}</span>
+  </div>
+
+  <div style={styles.rule}>
+    <b>❤️</b>
+    <span>
+      Cœurs envoyés : {Object.values(likes).reduce((total, count) => total + count, 0)}
+    </span>
+  </div>
+
+  <div style={styles.rule}>
+    <b>🎮</b>
+    <span>
+      Jeux représentés : {new Set(queue.map((streamer) => streamer.game).filter(Boolean)).size}
+    </span>
+  </div>
+</div>
+
             <div style={styles.founder}>
               👑 <strong>Fondatrice — LaLaetii</strong>
               <p>
