@@ -372,6 +372,34 @@ app.get("/api/likes", (req, res) => {
 
   res.json({ messages });
 });
+// ==================== CHAT STREAMLAETI ====================
+
+let chatMessages = [];
+
+app.post("/api/chat", (req, res) => {
+  const { message } = req.body;
+
+  if (!message || !message.trim()) {
+    return res.status(400).json({ error: "Message vide" });
+  }
+
+  const username = req.session.user?.display_name || "Visiteur";
+
+  chatMessages.push({
+    id: Date.now() + Math.random(),
+    username,
+    message: message.trim(),
+  });
+
+  // On garde seulement les 100 derniers messages
+  chatMessages = chatMessages.slice(-100);
+
+  res.json({ success: true });
+});
+
+app.get("/api/chat", (req, res) => {
+  res.json({ messages: chatMessages });
+});
 app.use(express.static(path.join(__dirname, "..", "dist")));
 
 app.get(/.*/, (req, res) => {

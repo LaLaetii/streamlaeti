@@ -19,6 +19,30 @@ function App() {
 const [likes, setLikes] = useState({});
 const [likeMessages, setLikeMessages] = useState([]);
 
+const [chatMessages, setChatMessages] = useState([]);
+const [chatText, setChatText] = useState("");
+
+const sendChatMessage = async () => {
+  if (!chatText.trim()) return;
+
+  try {
+    await fetch(`${API_URL}/api/chat`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+      },
+      credentials: "include",
+      body: JSON.stringify({
+        message: chatText,
+      }),
+    });
+
+    setChatText("");
+  } catch (error) {
+    console.error("Erreur envoi chat :", error);
+  }
+};
+
 const sendLike = async () => {
   const streamer = queue[0]?.name;
   if (!streamer) return;
@@ -46,6 +70,31 @@ const sendLike = async () => {
     console.error("Erreur envoi du cœur :", error);
   }
 };
+
+useEffect(() => {
+  const loadChatMessages = async () => {
+    try {
+      const response = await fetch(`${API_URL}/api/chat`, {
+        credentials: "include",
+        cache: "no-store",
+      });
+
+      const data = await response.json();
+
+      if (response.ok) {
+        setChatMessages(data.messages || []);
+      }
+    } catch (error) {
+      console.error("Erreur récupération chat :", error);
+    }
+  };
+
+  loadChatMessages();
+
+  const chatInterval = setInterval(loadChatMessages, 2000);
+
+  return () => clearInterval(chatInterval);
+}, []);
 
 useEffect(() => {
     const checkTwitchConnection = async () => {
@@ -406,6 +455,78 @@ setQueue(queueData.queue);
       </div>
     ))
   )}
+</div>
+
+<div
+  style={{
+    marginTop: "15px",
+    padding: "10px",
+    border: "1px solid #444",
+    borderRadius: "10px",
+  }}
+>
+  <strong>💬 Chat StreamLaeti</strong>
+
+  <div
+    style={{
+      marginTop: "10px",
+      height: "180px",
+      overflowY: "auto",
+      padding: "8px",
+      background: "#111",
+      borderRadius: "8px",
+    }}
+  >
+    {chatMessages.length === 0 ? (
+      <div style={{ opacity: 0.6 }}>
+        Aucun message pour le moment 💬
+      </div>
+    ) : (
+      chatMessages.map((chat) => (
+        <div key={chat.id} style={{ marginBottom: "6px" }}>
+          <strong>{chat.username} :</strong>{" "}
+          {chat.message}
+        </div>
+      ))
+    )}
+  </div>
+
+  <div
+    style={{
+      display: "flex",
+      gap: "8px",
+      marginTop: "10px",
+    }}
+  >
+    <input
+      type="text"
+      value={chatText}
+      onChange={(e) => setChatText(e.target.value)}
+      onKeyDown={(e) => {
+        if (e.key === "Enter") {
+          sendChatMessage();
+        }
+      }}
+      placeholder="Écris un message..."
+      style={{
+        flex: 1,
+        padding: "8px",
+        borderRadius: "8px",
+        border: "1px solid #555",
+      }}
+    />
+
+    <button
+      onClick={sendChatMessage}
+      style={{
+        padding: "8px 12px",
+        borderRadius: "8px",
+        cursor: "pointer",
+      }}
+    >
+      Envoyer
+    </button>
+  </div>
 </div>
 
             </div>
