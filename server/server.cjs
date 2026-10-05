@@ -18,7 +18,32 @@ let serverQueue = [
 let nextRotationAt = null;
 let rotationTimer = null;
 
+let referrals = {};
+
 app.use(express.json());
+
+app.post("/api/referral", (req, res) => {
+  const { referrer } = req.body;
+
+  if (!referrer) {
+    return res.status(400).json({ error: "Parrain invalide" });
+  }
+
+  referrals[referrer] = (referrals[referrer] || 0) + 1;
+
+  res.json({
+    success: true,
+    referrals: referrals[referrer],
+  });
+});
+
+app.get("/api/referral/:referrer", (req, res) => {
+  const { referrer } = req.params;
+
+  res.json({
+    referrals: referrals[referrer] || 0,
+  });
+});
 
 function startRotationTimer() {
     if (rotationTimer) {

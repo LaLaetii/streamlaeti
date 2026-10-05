@@ -22,6 +22,35 @@ const [likeMessages, setLikeMessages] = useState([]);
 const [chatMessages, setChatMessages] = useState([]);
 const [chatText, setChatText] = useState("");
 
+useEffect(() => {
+  const ref = new URLSearchParams(window.location.search).get("ref");
+
+  if (!ref) return;
+
+  const alreadyCounted = localStorage.getItem(`streamlaeti_ref_counted_${ref}`);
+
+  if (alreadyCounted) return;
+
+  fetch(`${API_URL}/api/referral`, {
+    method: "POST",
+    headers: {
+      "Content-Type": "application/json",
+    },
+    body: JSON.stringify({
+      referrer: ref,
+    }),
+  })
+    .then((response) => response.json())
+    .then((data) => {
+      if (data.success) {
+        localStorage.setItem(`streamlaeti_ref_counted_${ref}`, "true");
+      }
+    })
+    .catch((error) => {
+      console.error("Erreur parrainage :", error);
+    });
+}, []);
+
 const sendChatMessage = async () => {
   if (!chatText.trim()) return;
 
@@ -632,6 +661,66 @@ setQueue(queueData.queue);
       Jeux représentés : {new Set(queue.map((streamer) => streamer.game).filter(Boolean)).size}
     </span>
   </div>
+</div>
+
+<div
+  style={{
+    marginTop: "15px",
+    padding: "15px",
+    borderRadius: "12px",
+    background: "rgba(255,255,255,0.08)",
+    textAlign: "center",
+  }}
+>
+  <h3>🎁 Parrainage StreamLaeti</h3>
+
+  <p>
+    Invite tes amis à découvrir StreamLaeti ❤️
+  </p>
+
+  {twitchUser ? (
+    <>
+      <p>
+        Ton lien de parrainage :
+      </p>
+
+      <input
+        readOnly
+        value={`https://streamlaeti.onrender.com/?ref=${encodeURIComponent(
+          twitchUser.display_name
+        )}`}
+        onClick={(e) => e.target.select()}
+        style={{
+          width: "100%",
+          padding: "8px",
+          borderRadius: "8px",
+          border: "none",
+          marginBottom: "8px",
+        }}
+      />
+
+      <button
+        onClick={() => {
+          const link = `https://streamlaeti.onrender.com/?ref=${encodeURIComponent(
+            twitchUser.display_name
+          )}`;
+
+          navigator.clipboard.writeText(link);
+          alert("Lien de parrainage copié ❤️");
+        }}
+        style={{
+          padding: "10px 15px",
+          borderRadius: "8px",
+          border: "none",
+          cursor: "pointer",
+        }}
+      >
+        📋 Copier mon lien
+      </button>
+    </>
+  ) : (
+    <p>Connecte-toi avec Twitch pour obtenir ton lien de parrainage.</p>
+  )}
 </div>
 
             <div style={styles.founder}>
